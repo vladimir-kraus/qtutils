@@ -66,7 +66,7 @@ auto layout = HBox(0, 0) // no margins around layout and no spacing between butt
 toolbar->setLayout(layout);
 ```
 
-Example with optional widgets added to layout:
+Example with optional widget added to layout:
 ```cpp
 auto buttonA = new QPushButton("A");
 QPushButton *buttonB = nullptr;
@@ -78,6 +78,19 @@ if (useB)
 // we can have the same layout code for both cases useB == true and useB == false, 
 // the nullptr is simply ignored in the latter case
 widget->setLayout(HBox() << buttonA << buttonB);
+```
+
+Example with a child layout:
+```cpp
+auto grid = new QGridLayout();
+// ... fill the grid with stuff
+auto submit = new QPushButton("Submit");
+
+VBox(dialog) 
+    << grid 
+    << (HBox() 
+        << Stretch() 
+        << submit));
 ```
 
 Singleton
