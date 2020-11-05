@@ -12,7 +12,7 @@ I hate creating complicated layouts in QtDesigner as much as you do. If you trie
 
 There are two templated wrappers `VBox` and `HBox` around pointers to `QVBoxLayout` and `QHBoxLayout`. These wrappers allow implicit conversions to the undelying layout pointers, they provide `<<` operators with which you can add child widgets or child layouts in a declarative way. You can also add stretches (using `Stretch`) or spacings (using `Spacing`). You can also easily define margins and default spacing for the layout in wrapper constructors. And if you need more, you can always access the layout pointer by `->`.
 
-A very simple example:
+A very simple example to get the basic idea:
 ```cpp
 auto dialog = new QDialog();
 auto label = new QLabel("Name:");
@@ -24,7 +24,7 @@ dialog->setLayout(VBox() << label << edit << button);
 VBox(dialog) << label << edit << button;
 ```
 
-Another example with stretches and spacing and some layout hierarchy:
+Example with some layout hierarchy, stretches and spacings:
 ```cpp
 auto dialog = new QDialog();
 auto icon = new QLabel();
@@ -47,7 +47,7 @@ HBox(dialog)
             << cancel));
 ```
 
-And yet another example with explicit spacing in a toolbar-like layout of buttons:
+Example with explicit spacing in a toolbar-like layout of buttons:
 ```cpp
 // assume we have 6 tool buttons and want to place them to
 // 3 groups in a row, each group spearated by some extra space
@@ -64,6 +64,20 @@ auto layout = HBox(0, 0) // no margins around layout and no spacing between butt
     << button6;
 
 toolbar->setLayout(layout);
+```
+
+Example with optional widgets added to layout:
+```cpp
+auto buttonA = new QPushButton("A");
+QPushButton *buttonB = nullptr;
+if (useB)
+{
+    buttonB = new QPushButton("B");
+}
+
+// we can have the same layout code for both cases useB == true and useB == false, 
+// the nullptr is simply ignored in the latter case
+widget->setLayout(HBox() << buttonA << buttonB);
 ```
 
 Singleton
