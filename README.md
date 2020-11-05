@@ -34,7 +34,9 @@ auto ok = new QPushButton("Ok");
 auto cancel = new QPushButton("Cancel");
 
 HBox(dialog)
-    << icon
+    << (VBox() 
+        << icon
+        << Stretch())
     << Spacing(16)
     << (VBox() 
         << text 
