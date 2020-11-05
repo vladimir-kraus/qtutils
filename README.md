@@ -1,6 +1,6 @@
 # QtUtils
 
-A collection of utilities for (not only) Qt development. At this moment it contains only a few header-only classes which can be used anywhere in your code.
+A collection of utilities for (not only) Qt development. At this moment it contains only a few header-only classes which can be used anywhere in your code. More stuff will be added later on...
 
 Layouts
 -------
