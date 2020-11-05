@@ -8,7 +8,7 @@ File: [`layouts.h`](qtutils/layouts.h)<br>
 Dependency: QtWidgets<br>
 License: MIT
 
-I hate creating complicated layouts in QtDesigner as much as you. If you tried, you know what I am talking about. But I also hate writing verbose procedural code. So I created a few utility classes in `layouts.h` which will allow writing more concise layout-related code possibly with declarative style. Currently it only contains replacements for `QVBoxLayout` and `QHBoxLayout`, which however make up more than 90 % of all layouts in my code.
+I hate creating complicated layouts in QtDesigner as much as you. If you tried, you know what I am talking about. But I also hate writing verbose procedural code. So I created a few utility classes in [`layouts.h`](qtutils/layouts.h) which will allow writing more concise layout-related code possibly with declarative style. Currently it only contains replacements for `QVBoxLayout` and `QHBoxLayout`, which however make up more than 90 % of all layouts in my code.
 
 There are two templated wrappers `VBox` and `HBox` around pointers to `QVBoxLayout` and `QHBoxLayout`. These wrappers allow implicit conversions to the layout pointers, they provide `<<` operators with which you can add child widgets or child layouts in a "declarative" way. You can also add stretches (with class `Stretch`) or spacings (with class `Spacing`). You can also easily define margins and default spacing for the layout.
 
@@ -23,7 +23,7 @@ dialog->setLayout(VBox() << label << edit << button);
 VBox(dialog) << label << edit << button;
 ```
 
-Another example with stretch and spacing and lyout hierarchy:
+Another example with stretches and spacing and some layout hierarchy:
 ```cpp
 auto dialog = new QDialog();
 auto icon = new QLabel();
@@ -43,13 +43,32 @@ HBox(dialog)
             << cancel));
 ```
 
+And yet another example with explicit spacing in a toolbar-like layout of buttons:
+```cpp
+// assume we have 6 tool buttons and want to place them to
+// 3 groups in a row, each group spearated by some extra space
+
+auto spacing = Spacing(10); // we will have 10 pixels between button groups
+auto layout = HBox(0, 0) // no margins around layout and no spacing between buttons in a group
+    << button1
+    << button2
+    << spacing // space between groups
+    << button3
+    << button4
+    << spacing // space between groups
+    << button5
+    << button6;
+
+toolbar->setLayout(layout);
+```
+
 Singleton
 ---------
 File: [`singleton.h`](qtutils/singleton.h)<br>
 Dependency: none<br>
 License: MIT
 
-Yes, I know that singletons are evil. Everybody says that. Nevertheless I must confess that I like to use singletons time to time because they are so pragmatic, helpful and can save lots of code. The only thing you need to remember when using singletons is to use them sparsely and only when you have a very good reason. There are many possible implementation of singletons but after trying several of them I chose the one which you can find in `singleton.h`. Like many other singleton implementations also this uses [CTRP pattern](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern). Unlike many other implementations, which are implicitly instantiated at first use, my implementation requires explicit instantiation. Which I think is good because I like to have control over the time when things are instantiated and destroyed. Unlike many other implementations which live until the very end of the program, this implementation allows destroying the instance and then instantiating it again. This singleton implementation is not dependent on Qt so it can be used in any C++ code. But it complements with all Qt classes extremely well.
+Yes, I know that singletons are evil. Everybody says that. Nevertheless I must confess that I like to use singletons time to time because they are so pragmatic, helpful and can save lots of code. The only thing you need to remember when using singletons is to use them sparsely and only when you have a very good reason. There are many possible implementation of singletons but after trying several of them I chose the one which you can find in [`singleton.h`](qtutils/singleton.h). Like many other singleton implementations also this uses [CTRP pattern](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern). Unlike many other implementations, which are implicitly instantiated at first use, my implementation requires explicit instantiation. Which I think is good because I like to have control over the time when things are instantiated and destroyed. Unlike many other implementations which live until the very end of the program, this implementation allows destroying the instance and then instantiating it again. This singleton implementation is not dependent on Qt so it can be used in any C++ code. But it complements with all Qt classes extremely well.
 
 Here I would like to mention why I think that singletons are cool (sometimes). The main benefit of singletons is that they are accessible from anywhere, you do not need to pass their references all around your application. Yes, there are costs to pay. You hide code dependencies (this not cool, in general), testing may be a bit more complicated (but is possible), you must not forget to instantiate them and instantiate them only once (if the instatiation is not automatic).
 
