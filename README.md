@@ -4,7 +4,7 @@ A collection of utilities for (not only) Qt development. At this moment it conta
 
 Layouts
 -------
-File: `layouts.h`<br>
+File: [`layouts.h`](qtutils/layouts.h)<br>
 Dependency: QtWidgets<br>
 License: MIT
 
@@ -13,7 +13,7 @@ I hate creating complicated layouts in QtDesigner as much as you. If you tried, 
 There are two templated wrappers `VBox` and `HBox` around pointers to `QVBoxLayout` and `QHBoxLayout`. These wrappers allow implicit conversions to the layout pointers, they provide `<<` operators with which you can add child widgets or child layouts in a "declarative" way. You can also add stretches (with class `Stretch`) or spacings (with class `Spacing`). You can also easily define margins and default spacing for the layout.
 
 A very simple example:
-```
+```cpp
 auto dialog = new QDialog();
 auto label = new QLabel("Name:");
 auto edit = new QLineEdit();
@@ -24,7 +24,7 @@ VBox(dialog) << label << edit << button;
 ```
 
 Another example with stretch and spacing and lyout hierarchy:
-```
+```cpp
 auto dialog = new QDialog();
 auto icon = new QLabel();
 icon->setPixmap("warning.png");
@@ -45,7 +45,7 @@ HBox(dialog)
 
 Singleton
 ---------
-File: `singleton.h`<br>
+File: [`singleton.h`](qtutils/singleton.h)<br>
 Dependency: none<br>
 License: MIT
 
@@ -56,7 +56,7 @@ Here I would like to mention why I think that singletons are cool (sometimes). T
 For example I am using singleton for keeping my application's preferences. There are so many small objects throughout my application which need to get some information from preferences (e.g. about data formatting) that it is not practical to pass explicitly reference to preferences to each of these little objects individually and keep it there. My `Preferences` class use multiple inheritance from `QObject` and `Singleton<Preferences>` (CRTP pattern). Inheriting from `QObject` allows them provide for example signal `changed()` to inform the rest of the application about the fact that something in the preferences was changed and let all observers connected to this signal to be updated and reflect these changes. Inheriting from `Singleton<>` provides static `instance()` method and asserts that it is instantiated at most once (in debug mode only).
 
 A snippet from `preferences.h` (with implementations from `preferences.cpp`):
-```
+```cpp
 class Preferences : public QObject, public Singleton<Preferences> // note that Singleton is mentioned only here
 {
     Q_OBJECT
@@ -89,7 +89,7 @@ private:
 ```
 
 A snippet from any place in the code, e.g. `datatable.cpp` which needs to be updated whenever the preferences change:
-```
+```cpp
 #include "preferences.h"
 // ...
 
@@ -103,7 +103,7 @@ DataTable::DataTable()
 ```
 
 A snippet from `main.cpp`:
-```
+```cpp
 int main(int argc, char *argv[]) 
 {
     QApplication application(argc, argv);
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 ```
 
 Another usecase for a singleton in my application is a window which may have only one instance.
-```
+```cpp
 #include "singleton.h"
 // ...
 
@@ -128,7 +128,7 @@ class PreferencesWindow : public QWidget, public Singleton<PreferencesWindow> //
 ```
 
 And this is how the window is displayed from `mainwindow.cpp`:
-```
+```cpp
 #include "preferenceswindow.h"
 // ...
 
