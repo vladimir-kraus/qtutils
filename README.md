@@ -10,9 +10,9 @@ License: MIT
 
 I hate creating complicated layouts in QtDesigner as much as you do. If you tried it at least once, you know what I am talking about. But I also hate writing and reading complex and verbose procedural code. So I created a few utility classes in [`layouts.h`](qtutils/layouts.h) which will allow writing more concise layout-related code in somewhat declarative style. Currently it only contains helpers for `QVBoxLayout` and `QHBoxLayout`, which however account for more than 90 % of all layouts in my code.
 
-There are two templated wrappers `VBox` and `HBox` around pointers to `QVBoxLayout` and `QHBoxLayout`. These wrappers allow implicit conversions to the undelying layout pointers, they provide `<<` operators with which you can add child widgets or child layouts in a declarative way. You can also add stretches (using `Stretch`) or spacings (using `Spacing`). You can also easily define margins and default spacing for the layout in wrapper constructors. And if you need more, you can always access the layout pointer by `->`.
+There are two templated wrappers `VBox` and `HBox` around pointers to `QVBoxLayout` and `QHBoxLayout`. These wrappers allow implicit conversions to the undelying layout pointers, they provide `<<` operators with which you can add child widgets or child layouts in a declarative way. You can also add stretches (using `Stretch`) or spacings (using `Spacing`). You can also easily define margins and default spacing for the layout in wrapper constructors. And if you need more, you can always access the layout pointer with `->` operator.
 
-Example with easy to read layout hierarchy, coded in a declarative-like style:
+An example with easy-to-read layout hierarchy, coded in a declarative-like style:
 
 ```cpp
 auto dialog = new QDialog();
@@ -35,7 +35,7 @@ HBox(dialog)
             << cancel));
 ```
 
-More exmaples are in [`layouts.h`](qtutils/layouts.h).
+More examples are in [`layouts.h`](qtutils/layouts.h).
 
 Singleton
 ---------
