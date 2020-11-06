@@ -12,24 +12,12 @@ I hate creating complicated layouts in QtDesigner as much as you do. If you trie
 
 There are two templated wrappers `VBox` and `HBox` around pointers to `QVBoxLayout` and `QHBoxLayout`. These wrappers allow implicit conversions to the undelying layout pointers, they provide `<<` operators with which you can add child widgets or child layouts in a declarative way. You can also add stretches (using `Stretch`) or spacings (using `Spacing`). You can also easily define margins and default spacing for the layout in wrapper constructors. And if you need more, you can always access the layout pointer by `->`.
 
-A very simple example to get the basic idea:
-```cpp
-auto dialog = new QDialog();
-auto label = new QLabel("Name:");
-auto edit = new QLineEdit();
-auto button = new QPushButton("Submit");
+Example with easy to read layout hierarchy, coded in a declarative-like style:
 
-dialog->setLayout(VBox() << label << edit << button); 
-// or shorter but maybe a less explicit way:
-VBox(dialog) << label << edit << button;
-```
-
-Example with some layout hierarchy, stretches and spacings:
 ```cpp
 auto dialog = new QDialog();
 auto icon = new QLabel();
-icon->setPixmap("warning.png");
-auto text = new QLabel("A warning message ...");
+auto text = new QLabel("A message ...");
 auto ok = new QPushButton("Ok");
 auto cancel = new QPushButton("Cancel");
 
@@ -47,51 +35,7 @@ HBox(dialog)
             << cancel));
 ```
 
-Example with explicit spacing in a toolbar-like layout of buttons:
-```cpp
-// assume we have 6 tool buttons and want to place them to
-// 3 groups in a row, each group spearated by some extra space
-
-auto spacing = Spacing(10); // we will have 10 pixels between button groups
-auto layout = HBox(0, 0) // no margins around layout and no spacing between buttons in a group
-    << button1
-    << button2
-    << spacing // space between groups
-    << button3
-    << button4
-    << spacing // space between groups
-    << button5
-    << button6;
-
-toolbar->setLayout(layout);
-```
-
-Example with optional widget added to layout:
-```cpp
-auto buttonA = new QPushButton("A");
-QPushButton *buttonB = nullptr;
-if (useB)
-{
-    buttonB = new QPushButton("B");
-}
-
-// we can have the same layout code for both cases useB == true and useB == false, 
-// the nullptr is simply ignored in the latter case
-widget->setLayout(HBox() << buttonA << buttonB);
-```
-
-Example with a child layout:
-```cpp
-auto grid = new QGridLayout();
-// ... fill the grid with stuff
-auto submit = new QPushButton("Submit");
-
-VBox(dialog) 
-    << grid 
-    << (HBox() 
-        << Stretch() 
-        << submit));
-```
+More exmaples are in [`layouts.h`](qtutils/layouts.h).
 
 Singleton
 ---------
