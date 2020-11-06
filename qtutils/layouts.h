@@ -3,17 +3,69 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
+// Simple wrappers around QVBoxLayout and QHBoxLayout which allow concise
+// declarative style of creating layouts in your code. It also supports
+// simple setting of margins, spacing and stretch.
+
 //
-// Example of setting a child layout with a title and text labels to a parent widget:
+// An example of a layout with a title, text, stretched space and a button:
 //
-// #include "layouts.h"
-// ...
 // auto title = new QLabel("Title");
 // auto text = new QLabel("Text");
-// auto button = new QPushButton("Ok");
-// dialog->setLayout(VBox() << title << textBox << Stretch() << button);
-// ...
+// auto ok = new QPushButton("Ok");
 //
+// dialog->setLayout(VBox() << title << text << Stretch() << ok);
+//
+
+//
+// An example with declarative-style layout hierarchy:
+//
+// auto dialog = new QDialog();
+// auto icon = new QLabel();
+// auto text = new QLabel("A message ...");
+// auto ok = new QPushButton("Ok");
+// auto cancel = new QPushButton("Cancel");
+//
+// HBox(dialog)
+//     << (VBox() 
+//         << icon
+//         << Stretch())
+//     << Spacing(16)
+//     << (VBox() 
+//         << text 
+//         << Stretch() 
+//         << (HBox()
+//             << Stretch()
+//             << ok
+//             << cancel));
+//
+
+//
+// An example with Schödinger's widget:
+// 
+// auto buttonA = new QPushButton("A");
+// QPushButton *buttonB = nullptr;
+// if (useB) // buttonB may be dead or alive
+// { 
+//     buttonB = new QPushButton("B");
+// }
+// 
+// // regardless of (non)existence of buttonB we can safely 
+// // use one layout because possible nullptr will be ignored
+// widget->setLayout(HBox() << buttonA << buttonB);
+//
+
+//
+// An example with setting zero margins and reusing of explicit spacing:
+//
+// auto spacing = Spacing(10); // 10 pixels between button groups
+// widget->setlayout(HBox(0, 0) // no margins around layout and no spacing
+//     << button1 << button2
+//     << spacing // space between button groups
+//     << button3 << button4
+//     << spacing // space between button groups
+//     << button5 << button6);
+// 
 
 #pragma once
 
@@ -21,17 +73,28 @@
 #include <QVBoxLayout>
 
 /*
- * A layout placeholder for a stretched space or widget.
+ * A layout placeholder for a stretched space or a stretched widget.
+ * 
  * When used with a widget, copy of the instance of this class makes
  * only a shallow copy, i.e. it still points to the same widget.
+ * In that case, you can insert it into a layout only once.
+ *
+ * When used without a widget, it can be copied or inserted 
+ * into a layout or layouts multiple times.
  */
 struct Stretch final
 {
+    /*
+     * Stretching a widget.
+     */
     explicit Stretch(QWidget *widget, int value = 1) :
         m_widget(widget),
         m_value(value)
     { }
 
+    /*
+     * Stretching empty space.
+     */
     explicit Stretch(int value = 1) :
         m_value(value)
     { }
@@ -53,7 +116,8 @@ private:
 };
 
 /*
- * A layout placeholder for a space of given size.
+ * A layout placeholder for a space of given size (in pixels).
+ * It can be copied or inserted into a layout or layouts multiple times.
  */
 struct Spacing final
 {
@@ -71,10 +135,15 @@ private:
 };
 
 /*
- * A templated layout wrapper.
+ * A templated layout wrapper. Use classes VBox or HBox based on this template.
+ * 
  * For keeping default margins and spacing use value -1.
  * Copy of the instance of this class makes only
  * a shallow copy, i.e. it still points to the same layout.
+ *
+ * The wrapper creates the underlying layout in the constructor but does not own the layout.
+ * You must insert it into another layout or set it as a layout to a widget. 
+ * Then the lifetime of the layout will be taken over by the widget.
  */
 template<typename LayoutType, int defaultMargins = -1, int defaultSpacing = -1>
 class Box
@@ -97,12 +166,12 @@ public:
     explicit Box(int margins, int spacing = defaultSpacing, QWidget *parent = nullptr) :
         p(new LayoutType(parent))
     {
-        if (margins != -1)
+        if (margins >= 0)
         {
             p->setContentsMargins(margins, margins, margins, margins);
         }
 
-        if (spacing != -1)
+        if (spacing >= 0)
         {
             p->setSpacing(spacing);
         }
@@ -183,11 +252,11 @@ private:
 };
 
 /*
- * Wrapper for QVBoxLayout.
+ * Wrapper for QVBoxLayout with default margins and spacing.
  */
 using VBox = Box<QVBoxLayout, -1, -1>;
 
 /*
- * Wrapper for QHBoxLayout.
+ * Wrapper for QHBoxLayout with default margins and spacing.
  */
 using HBox = Box<QHBoxLayout, -1, -1>;
