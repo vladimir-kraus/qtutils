@@ -1,6 +1,7 @@
-#pragma once
-
-#include <cassert>
+//
+// Copyright (c) Vladimir Kraus. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+//
 
 //
 // A templated singleton base class which can extend any other class by using multiple inheritance.
@@ -23,6 +24,10 @@
 // ... 
 // };
 // 
+
+#pragma once
+
+#include <cassert>
 
 template <typename T>
 class Singleton
