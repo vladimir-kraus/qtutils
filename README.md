@@ -1,6 +1,6 @@
 # QtUtils
 
-A collection of utilities for (not only) Qt development. At this moment it contains only a few header-only classes which can be used anywhere in your code. More stuff will be added later on...
+A collection of utilities for (not only) Qt development. At this moment it contains only a few header-only classes which can be used anywhere in your code. The code is intended to be simple, light-weight, pragmatic and easy to understand. More stuff will be added later on...
 
 Layouts
 -------
@@ -48,6 +48,8 @@ Yes, I know that singletons are evil. Everybody says that. Nevertheless I must c
 Here I would like to mention why I think that singletons are so cool (sometimes). The main benefit of singletons is that they are accessible from anywhere, you do not need to pass and keep their references all around your application. Yes, there is certain price to pay. You hide code dependencies (well, this not cool, in general), testing may be a bit more complicated (but is possible), you must not forget to instantiate them and instantiate them only once (if the instatiation is not automatic).
 
 For example I am using singleton for keeping my application's preferences. There are so many small objects throughout my application which need to get some information from preferences (e.g. about customized data formatting) that it is not practical to pass explicitly reference to preferences to each of these little objects individually. My `Preferences` class use multiple inheritance from `QObject` and `Singleton<Preferences>` (CRTP pattern). Inheriting from `QObject` allows defining for example signal `changed()` to inform the rest of the application about the fact that something in the preferences was changed and let all observers connected to this signal to be updated and reflect these changes. Inheriting from `Singleton<>` provides static `instance()` method and asserts that it is instantiated at most once (in debug mode only).
+
+Note that this singleton implementation is not thread-safe. Thread-safety, if required, must be implemented for the derived class (e.g. by arming the getters and setters in derived `Preferences` class with mutexes). However due to the fact that you have full control over when the singleton is created, make sure you always create is before other thread can access it via `instance()` method. This is a basic prerequisity for correct code.
 
 A snippet from `preferences.h` (with implementations from `preferences.cpp`):
 ```cpp
