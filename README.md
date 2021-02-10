@@ -36,3 +36,16 @@ HBox(dialog)
 ```
 
 More examples are in [`layouts.h`](qtutils/layouts.h).
+
+safeConnect
+-----------
+File: [`safeconnect.h`](qtutils/safeconnect.h)<br>
+Dependency: QtCore<br>
+License: MIT
+
+SafePointer
+-----------
+File: [`safepointer.h`](qtutils/safepointer.h)<br>
+Dependency: QtCore<br>
+License: MIT
+
