@@ -1,3 +1,9 @@
+//
+// Copyright (c) Vladimir Kraus. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+// https://github.com/vladimir-kraus/qtutils
+//
+
 /*
  * SafePointer is a strong pointer specialized for QObject-based classes.
  * SafePointer owns the object in the sense that when the pointer gets destroyed,
