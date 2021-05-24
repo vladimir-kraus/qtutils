@@ -3,21 +3,33 @@
 #include <QApplication>
 #include <QObject>
 
-#include "cpputils/singleton.h"
-
 /**
  * Provides simple dynamic translations for widgets.
  * Translator object must be instantiated after QApplication is instantiated.
+ * Only one instance of this class can be created.
  */
-class Translator : public QObject, public Singleton<Translator>
+class Translator : public QObject
 {
     Q_OBJECT
 
 public:
     Translator()
     {
+        Q_ASSERT(s_instance == nullptr);
+        s_instance = this;
+
         Q_ASSERT(qApp != nullptr);
         qApp->installEventFilter(this);
+    }
+
+    ~Translator() override
+    {
+        s_instance = nullptr;
+    }
+
+    static Translator *instance()
+    {
+        return s_instance;
     }
 
 protected:
@@ -33,6 +45,9 @@ protected:
 
 signals:
     void languageChanged();
+
+private:
+    inline static Translator *s_instance = nullptr;
 };
 
 /**
