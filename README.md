@@ -42,10 +42,19 @@ safeConnect
 File: [`safeconnect.h`](qtutils/safeconnect.h)<br>
 Dependency: QtCore<br>
 License: MIT
+Safer unique connections which automatically check a few potential errors.
 
 SafePointer
 -----------
 File: [`safepointer.h`](qtutils/safepointer.h)<br>
 Dependency: QtCore<br>
 License: MIT
+A useful mixture of strong and weak pointer to QObjects.
+
+Translator
+-----------
+File: [`translator.h`](qtutils/translator.h)<br>
+Dependency: QtWidgets<br>
+License: MIT
+Translator object and related macros allow simple dynamic translations of texts in widgets.
 
