@@ -75,23 +75,35 @@
 
 /*
  * A layout placeholder for a stretched space or a stretched widget.
- * 
+ *
  * When used with a widget, copy of the instance of this class makes
  * only a shallow copy, i.e. it still points to the same widget.
  * In that case, you can insert it into a layout only once.
  *
- * When used without a widget, it can be copied or inserted 
+ * When used without a widget, it can be copied or inserted
  * into a layout or layouts multiple times.
  */
 struct Stretch final
 {
     /*
-     * Stretching a widget.
+     * Stretching a widget. If widget is nullptr, then stretch
+     * value is ignored and stretch will be zero-sized.
      */
     explicit Stretch(QWidget *widget, int value = 1) :
         m_widget(widget),
-        m_value(value)
-    { }
+        m_value(widget ? value : -1)
+    {
+    }
+
+    /*
+     * Stretching a layout. If layout is nullptr, then stretch
+     * value is ignored and stretch will be zero-sized.
+     */
+    explicit Stretch(QLayout *layout, int value = 1) :
+        m_layout(layout),
+        m_value(layout ? value : -1)
+    {
+    }
 
     /*
      * Stretching empty space.
@@ -105,6 +117,11 @@ struct Stretch final
         return m_widget;
     }
 
+    QLayout *layout() const
+    {
+        return m_layout;
+    }
+
     int value() const
     {
         return m_value;
@@ -112,8 +129,8 @@ struct Stretch final
 
 private:
     QWidget *m_widget = nullptr;
-
-    int m_value = 0;
+    QLayout *m_layout = nullptr;
+    int m_value = -1;
 };
 
 /*
@@ -156,7 +173,7 @@ public:
      * it is needed to call parent->setLayout(box) later.
      */
     explicit Box(QWidget *parent = nullptr) :
-        Box(defaultMargins, defaultMargins, parent)
+        Box(defaultMargins, defaultSpacing, parent)
     { }
 
     /*
@@ -227,13 +244,21 @@ public:
      */
     Box& operator <<(const Stretch &stretch)
     {
-        if (stretch.widget() == nullptr)
+        int s = stretch.value();
+        if (s >= 0)
         {
-            p->addStretch(stretch.value());
-        }
-        else
-        {
-            p->addWidget(stretch.widget(), stretch.value());
+            if (stretch.widget() != nullptr)
+            {
+                p->addWidget(stretch.widget(), s);
+            }
+            else if (stretch.layout() != nullptr)
+            {
+                p->addLayout(stretch.layout(), s);
+            }
+            else
+            {
+                p->addStretch(s);
+            }
         }
 
         return *this;
@@ -244,7 +269,12 @@ public:
      */
     Box& operator <<(const Spacing &spacing)
     {
-        p->addSpacing(spacing.value());
+        int s = spacing.value();
+        if (s >= 0)
+        {
+            p->addSpacing(s);
+        }
+
         return *this;
     }
 
