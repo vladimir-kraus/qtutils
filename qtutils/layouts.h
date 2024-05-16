@@ -2,6 +2,7 @@
 
 #include <QFormLayout>
 #include <QHBoxLayout>
+#include <QMargins>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -91,24 +92,30 @@
 
 /**
  * @brief Defines margins for layout wrappers. By default, all layout wrappers
- * have zero-sized margins. Non-zero sized margins are however needed for 
- * top-level layouts in a window or dialog. Use default constructor Margins() 
- * to create default margins, i.e. depending on application's QStyle. Default 
+ * have zero-sized margins. Non-zero sized margins are however needed for
+ * top-level layouts in a window or dialog. Use default constructor Margins()
+ * to create default margins, i.e. depending on application's QStyle. Default
  * margins correspond to value -1.
  */
-class Margins
+class Margins final
 {
 public:
     /**
-     * @brief Uses the same margin size for all left, top, right and bottom 
-     * margins.
+     * @brief Uses the same margin size for all left, top, right and bottom
+     * margins. Default value -1 means that the margins are inherited from
+     * outer parent layouts or are defined by the current style if there is
+     * no outer layout.
      */
-    Margins(int value = -1)
+    explicit Margins(int value = -1)
         : m_margins(value, value, value, value)
     {}
 
     Margins(int left, int top, int right, int bottom)
         : m_margins(left, top, right, bottom)
+    {}
+
+    Margins(const QMargins &margins)
+        : m_margins(margins)
     {}
 
     const QMargins &margins() const { return m_margins; }
@@ -120,10 +127,15 @@ private:
 /**
  * @brief Defines spacing for layout wrappers.
  */
-class Spacing
+class Spacing final
 {
 public:
-    Spacing(int spacing = -1)
+    /**
+     * @brief Default value -1 means that the spacing is inherited from
+     * outer parent layouts or is defined by the current style if there
+     * is no outer layout.
+     */
+    explicit Spacing(int spacing = -1)
         : m_spacing(spacing)
     {}
 
@@ -134,10 +146,10 @@ private:
 };
 
 /**
- * @brief Allows placing stretched blank space into parent VBox or HBox 
+ * @brief Allows placing stretched blank space into parent VBox or HBox
  * layouts.
  */
-class Stretch
+class Stretch final
 {
 public:
     /**
@@ -154,10 +166,10 @@ private:
 };
 
 /**
- * @brief Allows placing stretched child widget or layout into parent VBox or 
+ * @brief Allows placing stretched child widget or layout into parent VBox or
  * HBox layouts.
  */
-class Stretched
+class Stretched final
 {
 public:
     /**
@@ -189,10 +201,10 @@ private:
 };
 
 /**
- * @brief Allows placing aligned and (optionally) stretched widget into parent 
+ * @brief Allows placing aligned and (optionally) stretched widget into parent
  * VBox or HBox layouts.
  */
-class Aligned
+class Aligned final
 {
 public:
     Aligned(QWidget *widget, Qt::Alignment alignment, int stretch = 0)
@@ -221,16 +233,16 @@ template<typename Layout_T>
 class LayoutWraper
 {
 public:
-    explicit LayoutWraper(Layout_T *layout, const Margins &margins, int spacing)
+    explicit LayoutWraper(Layout_T *layout, const Margins &margins, Spacing spacing)
         : p(layout)
     {
         p->setContentsMargins(margins.margins());
-        p->setSpacing(spacing);
+        p->setSpacing(spacing.spacing());
     }
 
     /**
-     * @brief Implicit conversion to the wrapped layout class so that 
-     * the wrapper can be used anywhere the underlying layout pointer 
+     * @brief Implicit conversion to the wrapped layout class so that
+     * the wrapper can be used anywhere the underlying layout pointer
      * is expected.
      */
     operator Layout_T *() const { return p; }
@@ -252,7 +264,7 @@ protected:
 class Box : public LayoutWraper<QBoxLayout>
 {
 public:
-    Box(QBoxLayout *layout, const Margins &margins, int spacing)
+    Box(QBoxLayout *layout, const Margins &margins, Spacing spacing)
         : LayoutWraper<QBoxLayout>(layout, margins, spacing)
     {}
 
@@ -269,7 +281,7 @@ public:
     }
 
     /**
-     * @brief Adds child layout. The child layout can also be a result of 
+     * @brief Adds child layout. The child layout can also be a result of
      * implicit conversion from layout wrapper, which allows nesting of layout
      * wrappers. If the layout is null, it will be ignored.
      */
@@ -318,10 +330,10 @@ public:
     /**
      * @brief Adds fixed-size spacing.
      */
-    Box &operator<<(int spacing)
+    Box &operator<<(Spacing spacing)
     {
-        if (spacing > 0) {
-            p->insertSpacing(placement(), spacing);
+        if (spacing.spacing() > 0) {
+            p->insertSpacing(placement(), spacing.spacing());
         }
         return *this;
     }
@@ -351,12 +363,18 @@ protected:
 class VBox : public Box
 {
 public:
-    explicit VBox(QWidget *parent, const Margins &margins = 0, int spacing = -1)
+    explicit VBox(QWidget *parent,
+                  const Margins &margins = Margins(0),
+                  Spacing spacing = Spacing(-1))
         : Box(new QVBoxLayout(parent), margins, spacing)
     {}
 
-    explicit VBox(const Margins &margins = 0, int spacing = -1)
+    explicit VBox(const Margins &margins, Spacing spacing = Spacing(-1))
         : VBox(nullptr, margins, spacing)
+    {}
+
+    explicit VBox(Spacing spacing = Spacing(-1))
+        : VBox(nullptr, Margins(0), spacing)
     {}
 };
 
@@ -366,19 +384,25 @@ public:
 class HBox : public Box
 {
 public:
-    explicit HBox(QWidget *parent, const Margins &margins = 0, int spacing = -1)
+    explicit HBox(QWidget *parent,
+                  const Margins &margins = Margins(0),
+                  Spacing spacing = Spacing(-1))
         : Box(new QHBoxLayout(parent), margins, spacing)
     {}
 
-    explicit HBox(const Margins &margins = 0, int spacing = -1)
+    explicit HBox(const Margins &margins, Spacing spacing = Spacing(-1))
         : HBox(nullptr, margins, spacing)
+    {}
+
+    explicit HBox(Spacing spacing = Spacing(-1))
+        : HBox(nullptr, Margins(0), spacing)
     {}
 };
 
 /**
  * @brief Wrapper of items to be added in a single row to a Form layout wrapper.
  */
-class Row
+class Row final
 {
 public:
     Row(QWidget *label, QWidget *widget)
@@ -439,12 +463,18 @@ private:
 class Form : public LayoutWraper<QFormLayout>
 {
 public:
-    explicit Form(QWidget *parent, const Margins &margins = 0, int spacing = -1)
+    explicit Form(QWidget *parent,
+                  const Margins &margins = Margins(0),
+                  Spacing spacing = Spacing(-1))
         : LayoutWraper<QFormLayout>(new QFormLayout(parent), margins, spacing)
     {}
 
-    explicit Form(const Margins &margins = 0, int spacing = -1)
+    explicit Form(const Margins &margins, Spacing spacing = Spacing(-1))
         : Form(nullptr, margins, spacing)
+    {}
+
+    explicit Form(Spacing spacing = Spacing(-1))
+        : Form(nullptr, Margins(0), spacing)
     {}
 
     Form &operator<<(const Row &row)
